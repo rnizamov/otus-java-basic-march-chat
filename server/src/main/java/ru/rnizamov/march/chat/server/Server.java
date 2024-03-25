@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Server {
     private int port;
@@ -39,5 +40,12 @@ public class Server {
         for (ClientHandler c : clients) {
             c.sendMessage(message);
         }
+    }
+
+    public synchronized void sendMessageToUser(String userName, String msg) {
+       List<ClientHandler> list = clients.stream().filter(e->e.getUsername().equals(userName)).collect(Collectors.toList());
+       if (list.size() > 0) {
+           list.get(0).sendMessage(msg);
+       }
     }
 }

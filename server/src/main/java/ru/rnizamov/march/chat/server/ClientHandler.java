@@ -4,6 +4,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientHandler {
     private Server server;
@@ -14,9 +17,25 @@ public class ClientHandler {
 
     private static int usersCounter = 0;
 
+    public String getUsername() {
+        return username;
+    }
+
     private void generateUsername() {
         usersCounter++;
         this.username = "user" + usersCounter;
+    }
+
+    private Map<String, String> extractMsg(String msg) {
+        String[] msgArr = msg.split(" ");
+        String userName = msgArr[1];
+        String leftPart = msgArr[0] + " " + msgArr[1];
+        msgArr = msg.split(leftPart);
+        String message = msgArr[1].strip();
+        return new HashMap<>(){{
+            put("recipient", userName);
+            put("message", message);
+        }};
     }
 
     public ClientHandler(Server server, Socket socket) throws IOException {
@@ -34,6 +53,12 @@ public class ClientHandler {
                         if (msg.startsWith("/exit")) {
                             disconnect();
                             break;
+                        }
+                        if (msg.startsWith("/w user")) {
+                            String recipient = extractMsg(msg).get("recipient");
+                            String message = extractMsg(msg).get("message");
+                            server.sendMessageToUser(recipient, "входящее сообщение от " + this.username + ": " + message);
+                            server.sendMessageToUser(this.username, "исходящее сообщение для " + recipient + ": " + message);
                         }
                         continue;
                     }
