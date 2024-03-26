@@ -26,18 +26,6 @@ public class ClientHandler {
         this.username = "user" + usersCounter;
     }
 
-    private Map<String, String> extractMsg(String msg) {
-        String[] msgArr = msg.split(" ");
-        String userName = msgArr[1];
-        String leftPart = msgArr[0] + " " + msgArr[1];
-        msgArr = msg.split(leftPart);
-        String message = msgArr[1].strip();
-        return new HashMap<>(){{
-            put("recipient", userName);
-            put("message", message);
-        }};
-    }
-
     public ClientHandler(Server server, Socket socket) throws IOException {
         this.server = server;
         this.socket = socket;
@@ -55,10 +43,15 @@ public class ClientHandler {
                             break;
                         }
                         if (msg.startsWith("/w user")) {
-                            String recipient = extractMsg(msg).get("recipient");
-                            String message = extractMsg(msg).get("message");
-                            server.sendMessageToUser(username, username, "исходящее сообщение для " + recipient + ": " + message);
-                            server.sendMessageToUser(recipient, username, "входящее сообщение от " + username + ": " + message);
+                            String[] msgArr = msg.split(" ", 3);
+                            if (msgArr.length == 3) {
+                                String recipient = msgArr[1];
+                                String message = msgArr[2];
+                                server.sendMessageToUser(username, username, "исходящее сообщение для " + recipient + ": " + message);
+                                server.sendMessageToUser(recipient, username, "входящее сообщение от " + username + ": " + message);
+                            } else if (msgArr.length < 3){
+                                server.sendMessageToUser(username, username,"не верный запрос");
+                            }
                         }
                         continue;
                     }
