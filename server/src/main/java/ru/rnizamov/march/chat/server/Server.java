@@ -44,11 +44,15 @@ public class Server {
 
     public synchronized void sendMessageToUser(String recipient, String
             sender, String msg) {
-        List<ClientHandler> list = clients.stream().filter(e -> e.getUsername().equals(recipient)).collect(Collectors.toList());
-        if (list.size() > 0) {
-            list.get(0).sendMessage(msg);
+        List<ClientHandler> listRecipient = clients.stream().filter(e -> e.getUsername().equals(recipient)).collect(Collectors.toList());
+        List<ClientHandler> listSender = clients.stream().filter(e -> e.getUsername().equals(sender)).collect(Collectors.toList());
+
+        if (listRecipient.size() > 0) {
+            listRecipient.get(0).sendMessage(msg);
         } else {
-            sendMessageToUser(sender, "server", "ответ от сервера: нет пользователя с ником " + recipient);
+            if (listSender.size() > 0) {
+                listSender.get(0).sendMessage("ответ от сервера: нет пользователя с ником " + recipient);
+            }
         }
     }
 }
