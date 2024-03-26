@@ -57,8 +57,8 @@ public class ClientHandler {
                         if (msg.startsWith("/w user")) {
                             String recipient = extractMsg(msg).get("recipient");
                             String message = extractMsg(msg).get("message");
-                            server.sendMessageToUser(recipient, "входящее сообщение от " + this.username + ": " + message);
-                            server.sendMessageToUser(this.username, "исходящее сообщение для " + recipient + ": " + message);
+                            server.sendMessageToUser(username, username, "исходящее сообщение для " + recipient + ": " + message);
+                            server.sendMessageToUser(recipient, username, "входящее сообщение от " + username + ": " + message);
                         }
                         continue;
                     }

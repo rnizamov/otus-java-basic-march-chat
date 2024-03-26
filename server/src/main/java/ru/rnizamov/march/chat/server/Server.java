@@ -42,10 +42,13 @@ public class Server {
         }
     }
 
-    public synchronized void sendMessageToUser(String userName, String msg) {
-       List<ClientHandler> list = clients.stream().filter(e->e.getUsername().equals(userName)).collect(Collectors.toList());
-       if (list.size() > 0) {
-           list.get(0).sendMessage(msg);
-       }
+    public synchronized void sendMessageToUser(String recipient, String
+            sender, String msg) {
+        List<ClientHandler> list = clients.stream().filter(e -> e.getUsername().equals(recipient)).collect(Collectors.toList());
+        if (list.size() > 0) {
+            list.get(0).sendMessage(msg);
+        } else {
+            sendMessageToUser(sender, "server", "ответ от сервера: нет пользователя с ником " + recipient);
+        }
     }
 }
