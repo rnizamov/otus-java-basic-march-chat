@@ -45,8 +45,25 @@ public class Server {
     }
 
     public synchronized void unsubscribe(ClientHandler clientHandler) {
-        clients.remove(clientHandler);
-        broadcastMessage("Из чата вышел " + clientHandler.getNickname());
+        if (clients.contains(clientHandler)) {
+            clients.remove(clientHandler);
+            broadcastMessage("Из чата вышел " + clientHandler.getNickname());
+        }
+    }
+
+    public synchronized void kickUser(String nickname) throws IOException {
+        ClientHandler client = getClientByNickname(nickname);
+        if (client !=null) {
+            client.sendMessage("kicked");
+        }
+    }
+
+    public synchronized ClientHandler getClientByNickname(String nickname) {
+        List<ClientHandler> list = clients.stream().filter(e -> e.getNickname().equals(nickname)).collect(Collectors.toList());
+        if (list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
     }
 
     public synchronized void broadcastMessage(String message) {
@@ -57,14 +74,14 @@ public class Server {
 
     public synchronized void sendMessageToUser(String recipient, String
             sender, String msg) {
-        List<ClientHandler> listRecipient = clients.stream().filter(e -> e.getNickname().equals(recipient)).collect(Collectors.toList());
-        List<ClientHandler> listSender = clients.stream().filter(e -> e.getNickname().equals(sender)).collect(Collectors.toList());
+        ClientHandler recipientClient = getClientByNickname(recipient);
+        ClientHandler senderClient = getClientByNickname(sender);
 
-        if (listRecipient.size() > 0) {
-            listRecipient.get(0).sendMessage(msg);
+        if (recipientClient != null) {
+            recipientClient.sendMessage(msg);
         } else {
-            if (listSender.size() > 0) {
-                listSender.get(0).sendMessage("ответ от сервера: нет пользователя с ником " + recipient);
+            if (senderClient != null) {
+                senderClient.sendMessage("ответ от сервера: нет пользователя с ником " + recipient);
             }
         }
     }

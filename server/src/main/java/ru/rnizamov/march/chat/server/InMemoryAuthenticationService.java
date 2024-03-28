@@ -8,12 +8,15 @@ public class InMemoryAuthenticationService implements AuthenticationService {
         private String login;
         private String password;
         private String nickname;
+        private Role role;
 
-        public User(String login, String password, String nickname) {
+        public User(String login, String password, String nickname, Role role) {
             this.login = login;
             this.password = password;
             this.nickname = nickname;
+            this.role = role;
         }
+
     }
 
     private List<User> users;
@@ -21,8 +24,9 @@ public class InMemoryAuthenticationService implements AuthenticationService {
     public InMemoryAuthenticationService() {
         this.users = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            this.users.add(new User("login" + i, "pass" + i, "nick" + i));
+            this.users.add(new User("login" + i, "pass" + i, "nick" + i, Role.USER));
         }
+        this.users.add(new User("admin", "admin", "superAdmin", Role.ADMIN));
     }
 
     @Override
@@ -36,14 +40,14 @@ public class InMemoryAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public boolean register(String login, String password, String nickname) {
+    public boolean register(String login, String password, String nickname, Role role) {
         if (isLoginAlreadyExist(login)) {
             return false;
         }
         if (isNicknameAlreadyExist(nickname)) {
             return false;
         }
-        users.add(new User(login, password, nickname));
+        users.add(new User(login, password, nickname, role));
         return true;
     }
 
@@ -62,6 +66,18 @@ public class InMemoryAuthenticationService implements AuthenticationService {
         for (User u : users) {
             if (u.nickname.equals(nickname)) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isAdmin(String nickname) {
+        for (User u : users) {
+            if (u.nickname.equals(nickname)) {
+                if (u.role == Role.ADMIN) {
+                    return true;
+                }
             }
         }
         return false;

@@ -11,7 +11,6 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
     private String nickname;
-
     public String getNickname() {
         return nickname;
     }
@@ -41,17 +40,37 @@ public class ClientHandler {
             if (msg.startsWith("/")) {
                 if (msg.startsWith("/exit")) {
                     break;
-                }
-                if (msg.startsWith("/w ")) {
+                } else if (msg.startsWith("/w ")) {
                     String[] tokens = msg.split(" ", 3);
-                    if (tokens.length == 3) {
-                        String recipient = tokens[1];
-                        String message = tokens[2];
-                        server.sendMessageToUser(nickname, nickname, "исходящее сообщение для " + recipient + ": " + message);
-                        server.sendMessageToUser(recipient, nickname, "входящее сообщение от " + nickname + ": " + message);
-                    } else if (tokens.length < 3){
-                        server.sendMessageToUser(nickname, nickname,"не верный запрос");
+                    if (tokens.length != 3) {
+                        sendMessage("Некорректный формат запроса");
+                        continue;
                     }
+                    String recipient = tokens[1];
+                    String message = tokens[2];
+                    server.sendMessageToUser(nickname, nickname, "исходящее сообщение для " + recipient + ": " + message);
+                    server.sendMessageToUser(recipient, nickname, "входящее сообщение от " + nickname + ": " + message);
+                } else if (msg.startsWith("/kick ")) {
+                    if (!server.getAuthenticationService().isAdmin(nickname)) {
+                        sendMessage("А-та-та!");
+                        continue;
+                    }
+                    String[] tokens = msg.split(" ", 2);
+                    if (tokens.length != 2) {
+                        sendMessage("Некорректный формат запроса");
+                        continue;
+                    }
+                    String nickForKick = tokens[1];
+                    if (nickForKick.equals(nickname)) {
+                        sendMessage("Вероятно произошла ошибка ввода");
+                        continue;
+                    }
+                    if (server.getClientByNickname(nickForKick) == null) {
+                        sendMessage(nickForKick + " нет на сервере");
+                        continue;
+                    }
+                    sendMessage("C большой силой приходит большая ответственность!");
+                    server.kickUser(nickForKick);
                 }
                 continue;
             }
@@ -101,7 +120,7 @@ public class ClientHandler {
                     sendMessage("Указанный никнейм уже занят");
                     continue;
                 }
-                if (!server.getAuthenticationService().register(login, password, nickname)) {
+                if (!server.getAuthenticationService().register(login, password, nickname, Role.USER)) {
                     sendMessage("Не удалось пройти регистрацию");
                     continue;
                 }
