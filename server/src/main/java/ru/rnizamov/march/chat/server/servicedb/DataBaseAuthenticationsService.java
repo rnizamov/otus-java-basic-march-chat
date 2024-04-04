@@ -8,10 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataBaseAuthenticationsService implements AuthenticationService {
-    private final String DATABASE_URL = "jdbc:postgresql://localhost:5432/otus_chat";
+    private final String USER;
+    private final String PASSWORD;
+    private final String DATABASE_URL;
+
+    public DataBaseAuthenticationsService(String url, String user, String password) {
+        this.USER = user;
+        this.PASSWORD = password;
+        this.DATABASE_URL = url;
+    }
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DATABASE_URL, "root", "root");
+        return DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
     }
 
     private void addNickName(String nick) throws SQLException {
