@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataBaseAuthenticationsService implements AuthenticationService {
-    private static final String DATABASE_URL = "jdbc:postgresql://localhost:5432/otus_chat";
+    private final String DATABASE_URL = "jdbc:postgresql://localhost:5432/otus_chat";
 
-    public static Connection getConnection() throws SQLException {
+    private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DATABASE_URL, "root", "root");
     }
 
-    public static void addNickName(String nick) throws SQLException {
+    private void addNickName(String nick) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("INSERT INTO users (nickname) VALUES (?);")) {
                 preparedStatement.setString(1, nick);
@@ -23,7 +23,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void deleteNickName(String nick) throws SQLException {
+    private void deleteNickName(String nick) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("DELETE FROM users WHERE nickname = (?)")) {
                 preparedStatement.setString(1, nick);
@@ -32,7 +32,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void deleteNickNameById(int id) throws SQLException {
+    private void deleteNickNameById(int id) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id = (?)")) {
                 preparedStatement.setInt(1, id);
@@ -42,7 +42,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static String getNickNameById(int id) throws SQLException {
+    private String getNickNameById(int id) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE id = (?)")) {
                 preparedStatement.setInt(1, id);
@@ -55,7 +55,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static Integer getIdByNickName(String nick) throws SQLException {
+    private Integer getIdByNickName(String nick) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE nickname = (?)")) {
                 preparedStatement.setString(1, nick);
@@ -68,7 +68,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void updateNickNameById(int id, String nick) throws SQLException {
+    private void updateNickNameById(int id, String nick) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("UPDATE users SET nickname = (?) WHERE id = (?)")) {
                 preparedStatement.setString(1, nick);
@@ -78,7 +78,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static boolean isNickNameExist(String nickname) throws SQLException {
+    private boolean isNickNameExist(String nickname) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("select nickname FROM users")) {
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -90,7 +90,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void addRole(String role) throws SQLException {
+    private void addRole(String role) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("INSERT INTO role (name) VALUES (?);")) {
                 preparedStatement.setString(1, role);
@@ -99,7 +99,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void deleteRole(String role) throws SQLException {
+    private void deleteRole(String role) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("DELETE FROM role WHERE name=(?)")) {
                 preparedStatement.setString(1, role);
@@ -108,7 +108,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void updateRoleById(int id, String name) throws SQLException {
+    private void updateRoleById(int id, String name) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("UPDATE role SET name = (?) WHERE id = (?)")) {
                 preparedStatement.setString(1, name);
@@ -118,7 +118,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static Integer getRoleId(String name) throws SQLException {
+    private Integer getRoleId(String name) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("SELECT id FROM role WHERE name=(?)")) {
                 preparedStatement.setString(1, name);
@@ -131,7 +131,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void addLogAndPassToUser(int userId, String login, String password) throws SQLException {
+    private void addLogAndPassToUser(int userId, String login, String password) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("INSERT INTO auth (user_id, login, password) VALUES (?, ?, ?);")) {
                 preparedStatement.setInt(1, userId);
@@ -142,11 +142,11 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void addLogAndPassToUser(String nickName, String login, String password) throws SQLException {
+    private void addLogAndPassToUser(String nickName, String login, String password) throws SQLException {
         addLogAndPassToUser(getIdByNickName(nickName), login, password);
     }
 
-    public static void deleteLogPassToUser(int userId) throws SQLException {
+    private void deleteLogPassToUser(int userId) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("DELETE FROM auth WHERE user_id=(?)")) {
                 preparedStatement.setInt(1, userId);
@@ -155,7 +155,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static boolean isLoginExist(String login) throws SQLException {
+    private boolean isLoginExist(String login) throws SQLException {
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("select login FROM auth")) {
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -167,7 +167,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void addRoleToUser(String nickName, Role role) throws SQLException {
+    private void addRoleToUser(String nickName, Role role) throws SQLException {
         int userId = getIdByNickName(nickName);
         int roleId = getRoleId(role.name());
         try (var connection = getConnection()) {
@@ -179,7 +179,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static List<Role> getRolesByNickName(String nickName) throws SQLException {
+    private List<Role> getRolesByNickName(String nickName) throws SQLException {
         List<Role> roles = new ArrayList<>();
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("SELECT r.name AS name FROM user_to_role ur LEFT JOIN " +
@@ -195,11 +195,11 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static boolean userHasRoleByNickName(String nickName, Role role) throws SQLException {
+    private boolean userHasRoleByNickName(String nickName, Role role) throws SQLException {
         return getRolesByNickName(nickName).contains(role);
     }
 
-    public static void deleteAllRoleUser(String nickName) throws SQLException {
+    private void deleteAllRoleUser(String nickName) throws SQLException {
         int id = getIdByNickName(nickName);
         try (var connection = getConnection()) {
             try (var preparedStatement = connection.prepareStatement("DELETE FROM user_to_role WHERE user_id = (?)")) {
@@ -209,7 +209,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         }
     }
 
-    public static void deleteRoleToUser(String nickNane, Role role) throws SQLException {
+    private void deleteRoleToUser(String nickNane, Role role) throws SQLException {
         int roleId = getRoleId(role.name());
         int userId = getIdByNickName(nickNane);
         try (var connection = getConnection()) {
@@ -252,7 +252,7 @@ public class DataBaseAuthenticationsService implements AuthenticationService {
         return true;
     }
 
-    public static void deleteUser(String nickname) throws SQLException {
+    private void deleteUser(String nickname) throws SQLException {
         int id = getIdByNickName(nickname);
         deleteLogPassToUser(id);
         deleteAllRoleUser(nickname);
