@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.SQLException;
 
 public class ClientHandler {
     private Server server;
@@ -28,13 +29,15 @@ public class ClientHandler {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             } finally {
                 disconnect();
             }
         }).start();
     }
 
-    private void communicate() throws IOException {
+    private void communicate() throws IOException, SQLException {
         while (true) {
             String msg = in.readUTF();
             if (msg.startsWith("/")) {
@@ -78,7 +81,7 @@ public class ClientHandler {
         }
     }
 
-    private boolean tryToAuthenticate() throws IOException {
+    private boolean tryToAuthenticate() throws IOException, SQLException {
         while (true) {
             String msg = in.readUTF();
             if (msg.startsWith("/auth ")) {

@@ -1,5 +1,7 @@
 package ru.rnizamov.march.chat.server;
 
+import ru.rnizamov.march.chat.server.servicedb.DataBaseAuthenticationsService;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,7 +25,8 @@ public class Server {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            this.authenticationService = new InMemoryAuthenticationService();
+            this.authenticationService = new DataBaseAuthenticationsService("jdbc:postgresql://localhost:5432/otus_chat",
+                    "root", "root");
             System.out.println("Сервис аутентификации запущен: " + authenticationService.getClass().getSimpleName());
             System.out.printf("Сервер запущен на порту: %d, ожидаем подключения клиентов\n", port);
             while (true) {
@@ -51,7 +54,7 @@ public class Server {
         }
     }
 
-    public synchronized void kickUser(String nickname) throws IOException {
+    public synchronized void kickUser(String nickname) {
         ClientHandler client = getClientByNickname(nickname);
         if (client !=null) {
             client.sendMessage("kicked");
